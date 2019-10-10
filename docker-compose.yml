@@ -1,0 +1,33 @@
+version: '3'
+services:
+  app:
+    build: .
+    volumes:
+      - front:/vue
+    command: python main.py --port 5000
+    depends_on:
+       - mysql
+
+  mysql:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - ./mysql.cnf:/etc/mysql/my.cnf
+      - ./table_task1.sql:/docker-entrypoint-initdb.d/table_task1.sql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_DATABASE=day9
+
+  nginx:
+    image: nginx:1.16
+    ports:
+      - "8000:5000"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/main.conf
+      - front:/usr/share/nginx/html
+    depends_on:
+      - app
+volumes:
+  front:
